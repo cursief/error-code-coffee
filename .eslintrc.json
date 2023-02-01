@@ -1,3 +1,71 @@
 {
-  "extends": "next/core-web-vitals"
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "eslint-plugin-react-hooks"
+  ],
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "next",
+    "next/core-web-vitals"
+  ],
+  "rules": {
+    "no-console": "warn",
+    "no-duplicate-imports": "error",
+    "max-len": [
+      "warn",
+      {
+        "code": 220,
+        "comments": 220
+      }
+    ],
+    "indent": "off",
+    "@typescript-eslint/indent": [ "error", 2 ],
+    "key-spacing": [ "error", { "beforeColon": false, "afterColon": true } ],
+    "comma-dangle": [ "error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "never"
+    } ],
+    "no-multiple-empty-lines": [ "error", { "max": 1, "maxEOF": 0 } ],
+    "no-trailing-spaces": [ "error" ],
+    "eol-last": [ "error", "always" ],
+    "block-spacing": "error",
+    "space-before-function-paren": [ "error", "never" ],
+    "no-var": "error",
+    "no-extra-semi": "error",
+    "semi": [ "error", "always" ],
+    "semi-spacing": [ "error", { "before": false, "after": true } ],
+    "template-curly-spacing": [ "error", "always" ],
+    "object-curly-spacing": [ "error", "always" ],
+    "array-bracket-spacing": [ "error", "always" ],
+    "@typescript-eslint/type-annotation-spacing": [ "error", { "before": false, "after": true, "overrides": { "arrow": { "before": true, "after": true }} } ],
+    "quotes": [2, "single", { "avoidEscape": true }],
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-tag-spacing": [ "error", { "beforeSelfClosing": "always" } ],
+    "react/jsx-curly-spacing": [ "error", { "when": "always" } ],
+    "react/jsx-key": [ "error" ],
+    "jsx-quotes": [ "error", "prefer-single" ],
+    "jsx-a11y/alt-text": [ 0 ]
+  }
 }

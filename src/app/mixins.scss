@@ -1,0 +1,24 @@
+@mixin min($size) {
+  $breakpoint: map-get($breakpoints, $size);
+
+  @media (min-width: #{$breakpoint + 1}) {
+    @content;
+  }
+}
+
+@mixin max($size) {
+  $breakpoint: map-get($breakpoints, $size);
+
+  @media (max-width: $breakpoint) {
+    @content;
+  }
+}
+
+@mixin range($sizeMin, $sizeMax) {
+  $breakpointMin: map-get($breakpoints, $sizeMin);
+  $breakpointMax: map-get($breakpoints, $sizeMax);
+
+  @media (min-width: #{$breakpointMin + 1}) and (max-width: $breakpointMax) {
+    @content;
+  }
+}

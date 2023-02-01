@@ -1,91 +1,84 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+import React from 'react';
+import Parser from 'rss-parser';
 
-const inter = Inter({ subsets: ['latin'] })
+// Assets
+import LogoEcc from '../assets/svg/logo-error-code-coffee.svg';
+import LogoCursief from '../assets/svg/logo-cursief.svg';
 
-export default function Home() {
+import IconSpotify from '../assets/svg/services/spotify.svg';
+import IconApplePodcasts from '../assets/svg/services/apple-podcasts.svg';
+import IconGooglePodcasts from '../assets/svg/services/google-podcasts.svg';
+import IconRSS from '../assets/svg/services/rss.svg';
+
+// Styles
+import styles from './page.module.scss';
+import Main from './Main';
+
+// Init external modules
+const parser = new Parser();
+
+async function fetchRss() {
+  const response = await fetch('https://anchor.fm/s/6a811cc/podcast/rss');
+
+  if (!response.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data');
+  }
+
+  return parser.parseString(await response.text());
+}
+
+export default async function Home() {
+  const rss = await fetchRss();
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
+    <>
+      <header className={ styles.header }>
+        <aside className={ styles.headerAside }>
+          <p className={ styles.headerAsideText }>
+            <span>Hosted by</span> <a href='https://twitter.com/gideonheilbron'>Gideon Heilbron</a> <span>/</span> <a href='https://twitter.com/mmousawy'>Murtada al Mousawy</a>
+          </p>
+        </aside>
+        <div className={ styles.headerContent }>
+          <a href='/' aria-label='Homepage' className={ styles.headerLogo }>
+            <LogoEcc />
           </a>
-        </div>
-      </div>
+          <p className={ styles.headerSubContent }><span>A podcast by</span> <a href='https://cursief.co'><LogoCursief className={ styles.headerSubContentLogo } /></a></p>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
+          <h1 className={ styles['heading-1'] }>Error Code: Coffee</h1>
+          <h2 className={ styles.headerIntro }>A geeky podcast about tech, web development and all things life.</h2>
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
+          <h2 className={ styles['heading-2'] }>About</h2>
+          <p className={ styles.headerDescription }>
+            In this weekly podcast, our mostly improvised conversations will take you to honest yet curious corners of various themes, including: web development, design, games, movies, UX design, mental health, life and much more!
           </p>
-        </a>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+          <h2 className={ styles['heading-2'] }>Listen</h2>
+          <ul className={ styles.servicesList }>
+            <li>
+              <a href='https://open.spotify.com/show/3I9fjgZMOJU5dsvtRzfh3L' target='_blank' rel='noopener noreferrer'>
+                <span className={ styles.serviceIcon }><IconSpotify /></span> Spotify
+              </a>
+            </li>
+            <li>
+              <a href='https://itunes.apple.com/nl/podcast/error-code-coffee/id1433981170' target='_blank' rel='noopener noreferrer'>
+                <span className={ styles.serviceIcon }><IconApplePodcasts /></span> Apple Podcasts
+              </a>
+            </li>
+            <li>
+              <a href='https://www.google.com/podcasts?feed=aHR0cHM6Ly9hbmNob3IuZm0vcy82YTgxMWNjL3BvZGNhc3QvcnNz' target='_blank' rel='noopener noreferrer'>
+                <span className={ styles.serviceIcon }><IconGooglePodcasts /></span> Google Podcasts
+              </a>
+            </li>
+            <li>
+              <a href='https://anchor.fm/s/6a811cc/podcast/rss' target='_blank' rel='noopener noreferrer'>
+                <span className={ styles.serviceIcon }><IconRSS /></span> RSS feed
+              </a>
+            </li>
+          </ul>
+        </div>
+      </header>
+      <Main rss={ rss } />
+    </>
+  );
 }
