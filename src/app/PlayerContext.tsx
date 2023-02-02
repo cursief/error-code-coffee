@@ -1,24 +1,34 @@
 'use client';
 
-import React, { createContext, SyntheticEvent, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
 
 export const PlayerContext = createContext<any>(null);
 
 export default function PlayerContextProvider({ children }: { children: any }) {
   const [ episode, setEpisode ] = useState();
   const [ audio, setAudio ] = useState<HTMLAudioElement>();
+  const [ loading, setLoading ] = useState(false);
   const [ paused, setPaused ] = useState(false);
   const [ progress, setProgress ] = useState(0);
+  const [ playbackSpeed, setPlaybackSpeed ] = useState(1);
+  const [ newProgress, setNewProgress ] = useState(-1);
+  const [ requestUpdateProgress, setRequestUpdateProgress ] = useState(false);
   const [ duration, setDuration ] = useState(0);
 
-  useEffect(() => {
-    const pauseHandler = () => setPaused(true);
-    const playHandler = () => setPaused(false);
-    const timeUpdateHandler = (event: any) => {
-      setProgress(event.target?.currentTime || 0);
-      setDuration(event.target?.duration || 0);
+  const pauseHandler = () => setPaused(true);
+  const playHandler = () => setPaused(false);
+  const timeUpdateHandler = (event: any) => {
+    setProgress(event.target?.currentTime || 0);
+    setDuration(event.target?.duration || 0);
+  };
 
-      console.log(event);
+  const canPlayThroughHandler = (event: any) => {
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const waitingHandler = () => {
+      setLoading(true);
     };
 
     if (!audio) {
@@ -26,12 +36,22 @@ export default function PlayerContextProvider({ children }: { children: any }) {
       newAudio.addEventListener('pause', pauseHandler);
       newAudio.addEventListener('play', playHandler);
       newAudio.addEventListener('timeupdate', timeUpdateHandler);
+      newAudio.addEventListener('waiting', waitingHandler);
+      newAudio.addEventListener('canplaythrough', canPlayThroughHandler);
 
       setAudio(newAudio);
     }
 
     return () => {
-      audio?.removeEventListener('pause', pauseHandler);
+      if (!audio) {
+        return;
+      }
+
+      audio.removeEventListener('pause', pauseHandler);
+      audio.removeEventListener('play', playHandler);
+      audio.removeEventListener('timeupdate', timeUpdateHandler);
+      audio.removeEventListener('waiting', waitingHandler);
+      audio.addEventListener('canplaythrough', canPlayThroughHandler);
     };
   }, []);
 
@@ -39,51 +59,79 @@ export default function PlayerContextProvider({ children }: { children: any }) {
     console.log(paused ? 'Paused' : 'Playing');
   }, [ paused ]);
 
+  useEffect(() => {
+    console.log(loading ? 'Loading' : 'Done');
+  }, [ loading ]);
+
   const load = (episode: any) => {
     if (!audio) {
       return;
     }
 
     setEpisode(episode);
+    setLoading(true);
     setProgress(0);
     audio.pause();
 
     setTimeout(() => {
       audio.src = episode.enclosure.url;
+      audio.load();
+      audio.playbackRate = playbackSpeed;
       audio.play();
     }, 10);
   };
 
-  const updateProgress = (event: MouseEvent) => {
+  const updateProgressVisual = (event: MouseEvent, seekBar: HTMLDivElement) => {
     if (!audio) {
       return;
     }
 
-    const target: HTMLDivElement = event.target as HTMLDivElement;
+    const rect = seekBar.getBoundingClientRect();
+    let percentage = (event.clientX - rect.left) / rect.width;
+    percentage = Math.min(Math.max(percentage, 0), 1);
 
-    if (target.dataset.seekbarThumb) {
-      return;
-    }
-
-    const rect = target.getBoundingClientRect();
-    const percentage = (event.clientX - rect.left) / rect.width;
-
-    audio.currentTime = audio?.duration * percentage;
-    setProgress(audio.currentTime);
-
-    console.log(event.clientX - rect.left, event.clientY - rect.top);
+    setNewProgress(audio.duration * percentage);
 
     event.stopPropagation();
   };
 
+  const togglePlaybackSpeed = () => {
+    setPlaybackSpeed(playbackSpeed === 2 ? 1 : playbackSpeed + .5);
+  };
+
+  useEffect(() => {
+    if (!audio || !requestUpdateProgress || newProgress === -1) {
+      return;
+    }
+
+    audio.currentTime = newProgress;
+    setProgress(newProgress);
+    setRequestUpdateProgress(false);
+    setNewProgress(-1);
+  }, [ audio, newProgress, requestUpdateProgress ]);
+
+  useEffect(() => {
+    if (!audio) {
+      return;
+    }
+
+    audio.playbackRate = playbackSpeed;
+
+  }, [ audio, playbackSpeed ]);
+
   const state = {
     audio,
     load,
+    loading,
     paused,
     episode,
     progress,
+    newProgress,
     duration,
-    updateProgress,
+    updateProgressVisual,
+    setRequestUpdateProgress,
+    playbackSpeed,
+    togglePlaybackSpeed,
   };
 
   return (

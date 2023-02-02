@@ -19,7 +19,7 @@ export default function Main(props: any) {
     <PlayerContextProvider>
       <main className={ styles.main }>
         <>
-          <LogButton rss={ props.rss } />
+          {/* <LogButton rss={ props.rss } /> */}
           <p className={ styles.mainHeading }>Episodes</p>
           { props.rss.items.map((episode: any) => (
             <React.Fragment key={ episode.guid }>
